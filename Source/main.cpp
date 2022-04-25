@@ -21,6 +21,7 @@ struct PerFrameData
     glm::mat4 projection;
     glm::mat4 view;
     glm::mat4 VP;
+    glm::vec4 cameraPosition;
 } gPerFrameData;
 
 FirstPersonCamera camera(glm::vec3(0.0f, 1.0f, 2.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -120,14 +121,14 @@ int main()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
 
     // Global Uniform Buffer
     GLBuffer perFrameDataBuffer(nullptr, sizeof(PerFrameData), GL_DYNAMIC_STORAGE_BIT);
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, perFrameDataBuffer.getHandle(), 0, sizeof(PerFrameData));
 
     // Terrain
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(31, 1);
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(127, 1.0f);
 
     float dt = 0.016f;
     float startTime = static_cast<float>(glfwGetTime());
@@ -154,6 +155,7 @@ int main()
         gPerFrameData.projection = camera.getProjectionMatrix();
         gPerFrameData.view = camera.getViewMatrix();
         gPerFrameData.VP = gPerFrameData.projection * gPerFrameData.view;
+        gPerFrameData.cameraPosition = glm::vec4(camera.getPosition(), 1.0f);
         glNamedBufferSubData(perFrameDataBuffer.getHandle(), 0, sizeof(PerFrameData), &gPerFrameData);
 
         // Draw

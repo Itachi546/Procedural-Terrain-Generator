@@ -24,7 +24,7 @@ public:
 
 private:
 
-	void generateFootprintGeometry(int vertexCount, int unitSize);
+	void generateFootprintGeometry(int vertexCount, float unitSize);
 
 	void generateLocations(const glm::vec3& cameraPosition);
 

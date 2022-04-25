@@ -7,12 +7,13 @@
 class Camera;
 class GLProgram;
 class TerrainGeometry;
+class GLTexture;
 
 class Terrain
 {
 public:
 
-	explicit Terrain(int vertexCount, int unitSize);
+	explicit Terrain(int vertexCount, float unitSize);
 
 	void update(Camera* camera, float dt);
 
@@ -25,6 +26,8 @@ private:
 
 	std::shared_ptr<GLProgram> shader_;
 	std::shared_ptr<TerrainGeometry> terrainGeometry_;
+
+	std::shared_ptr<GLTexture> heightMap_;
 };
 
 

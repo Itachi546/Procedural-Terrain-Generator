@@ -140,4 +140,63 @@ private:
 	std::vector<uint8_t>    drawCommands;
 };
 
+enum class TextureFilter
+{
+	Linear, 
+	LinearMipmap,
+	Nearest
+};
+
+enum class TextureWrap
+{
+	Repeat,
+	ClampToEdge
+};
+
+enum class TextureFormat{
+	RGB8,
+	R16F,
+};
+
+struct TextureParams
+{
+	int width, height;
+
+	TextureFilter minFilter = TextureFilter::Linear;
+	TextureFilter magFilter = TextureFilter::Linear;
+	TextureWrap wrapS = TextureWrap::Repeat;
+	TextureWrap wrapT = TextureWrap::Repeat;
+	TextureFormat format = TextureFormat::RGB8;
+};
+
+struct TextureFormatInfo
+{
+	GLenum internalFormat;
+	GLenum format;
+	GLenum type;
+};
+
+class GLTexture
+{
+public:
+
+	explicit GLTexture(const void* data, const TextureParams& params);
+
+	unsigned int getHandle() const { return handle_; }
+
+	TextureFormatInfo getTextureFormatInfo() const { return  formatInfo_; }
+
+	int getWidth()  const { return width_; }
+
+	int getHeight() const { return height_; }
+
+	virtual ~GLTexture() { glDeleteTextures(1, &handle_); }
+
+private:
+	unsigned int handle_;
+	int width_;
+	int height_;
+	TextureFormatInfo formatInfo_;
+};
+
 #endif

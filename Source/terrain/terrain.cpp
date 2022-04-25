@@ -1,11 +1,12 @@
 #include "terrain/terrain.h"
 #include "terrain/terrain_geometry.h"
 #include "ogl.h"
+#include "image_utils.h"
 
 /*****************************************************************************************************************************************/
 
-Terrain::Terrain(int vertexCount, int unitSize) :
-	terrainParams_{ vertexCount, unitSize, 4, 100.0f, 0.0f }
+Terrain::Terrain(int vertexCount, float unitSize) :
+	terrainParams_{ vertexCount, unitSize, 8, 100.0f, 0.0f }
 {
 	// Create Geometry
 	terrainGeometry_ = std::make_shared<TerrainGeometry>(&terrainParams_);
@@ -13,6 +14,15 @@ Terrain::Terrain(int vertexCount, int unitSize) :
 	// Create Shader
 	shader_ = std::make_shared<GLProgram>(GLShader("Assets/Shaders/main.vert"), GLShader("Assets/Shaders/main.frag"));
 
+	// Load Heightmap
+	ImageHeader header = {};
+	float* data = ImageUtils::LoadImageFloat("Assets/Textures/heightmap.png", header);
+	TextureParams params = {};
+	params.width = header.width;
+	params.height = header.height;
+	params.format = TextureFormat::R16F;
+	heightMap_ = std::make_shared<GLTexture>(data, params);
+	ImageUtils::FreeImage(data);
 }
 
 /*****************************************************************************************************************************************/
@@ -27,6 +37,9 @@ void Terrain::update(Camera* camera, float dt)
 void Terrain::draw()
 {
 	shader_->useProgram();
+	shader_->setInt("u_Heightmap", 0);
+	glBindTexture(GL_TEXTURE_2D, heightMap_->getHandle());
+
 	terrainGeometry_->draw();
 }
 

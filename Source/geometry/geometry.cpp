@@ -2,7 +2,7 @@
 
 /***********************************************************************************************************************************/
 
-void GeometryGenerator::GenerateGrid(glm::ivec2 vertexCount, int unitSize, MeshData& meshData)
+void GeometryGenerator::GenerateGrid(glm::ivec2 vertexCount, float unitSize, MeshData& meshData)
 {
     int numVertices = vertexCount.y * vertexCount.x;
     unsigned int vertexOffset = static_cast<uint32_t>(meshData.vertices.size());
@@ -56,7 +56,7 @@ void GeometryGenerator::GenerateGrid(glm::ivec2 vertexCount, int unitSize, MeshD
 
 /***********************************************************************************************************************************/
 
-void GeometryGenerator::GenerateLTrim(glm::ivec2 vertexCount, int unitSize, MeshData& meshData)
+void GeometryGenerator::GenerateLTrim(glm::ivec2 vertexCount, float unitSize, MeshData& meshData)
 {
     unsigned int vertexOffset = static_cast<uint32_t>(meshData.vertices.size());
 
@@ -64,21 +64,21 @@ void GeometryGenerator::GenerateLTrim(glm::ivec2 vertexCount, int unitSize, Mesh
 
     for (int x = 0; x < vertexCount.x; ++x)
     {
-        vertices.push_back((float)unitSize * x);
+        vertices.push_back(unitSize * x);
         vertices.push_back(0.0f);
 
 
-        vertices.push_back((float)unitSize * x);
-        vertices.push_back((float)unitSize);
+        vertices.push_back(unitSize * x);
+        vertices.push_back(unitSize);
     }
 
-    float yOffset = (float)unitSize;
+    float yOffset = unitSize;
     for (int y = 0; y < vertexCount.y; ++y)
     {
         vertices.push_back(0.0f);
         vertices.push_back(yOffset + unitSize * y);
 
-        vertices.push_back((float)unitSize);
+        vertices.push_back(unitSize);
         vertices.push_back(yOffset + unitSize * y);
     }
 

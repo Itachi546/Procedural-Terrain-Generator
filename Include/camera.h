@@ -73,8 +73,8 @@ private:
 	// Projection Properties
 	float            fov_    = glm::radians(70.0f);
 	float            aspect_ = 1.333f;
-	float            zNear_  = 0.1f;
-	float            zFar_   = 1000.0f;
+	float            zNear_  = 0.3f;
+	float            zFar_   = 2000.0f;
 
 };
 

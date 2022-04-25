@@ -68,10 +68,12 @@
     <ClInclude Include="Include\terrain\terrain_params.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\image_utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Shaders\main.vert" />
     <None Include="Assets\Shaders\main.frag" />
-    <None Include="Assets\Shaders\main.geom" />
   </ItemGroup>
 </Project>

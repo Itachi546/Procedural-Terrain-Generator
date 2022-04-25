@@ -4,7 +4,7 @@
 struct TerrainParams
 {
 	int vertexCount;
-	int unitSize;
+	float unitSize;
 
 	int maxClipLevelCount;
 	float maxHeight;

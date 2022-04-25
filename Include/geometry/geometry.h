@@ -7,9 +7,9 @@ class GeometryGenerator
 {
 public:
 
-	static void GenerateGrid(glm::ivec2 vertexCount, int unitSize, MeshData& outMeshData);
+	static void GenerateGrid(glm::ivec2 vertexCount, float unitSize, MeshData& outMeshData);
 
-	static void GenerateLTrim(glm::ivec2 vertexCount, int unitSize, MeshData& meshData);
+	static void GenerateLTrim(glm::ivec2 vertexCount, float unitSize, MeshData& meshData);
 };
 
 #endif

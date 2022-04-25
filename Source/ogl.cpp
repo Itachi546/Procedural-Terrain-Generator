@@ -242,3 +242,76 @@ void GLMesh::draw() const
 }
 
 /*****************************************************************************************************************************************/
+static GLenum GetTextureFilter(TextureFilter filter)
+{
+	switch (filter)
+	{
+	case TextureFilter::Linear:
+		return GL_LINEAR;
+	case TextureFilter::Nearest:
+		return GL_NEAREST;
+	case TextureFilter::LinearMipmap:
+		return GL_LINEAR_MIPMAP_LINEAR;
+	default:
+		return GL_LINEAR;
+	}
+}
+
+static GLenum GetTextureWrap(TextureWrap wrap)
+{
+	switch (wrap)
+	{
+	case TextureWrap::Repeat:
+		return GL_REPEAT;
+	case TextureWrap::ClampToEdge:
+		return GL_CLAMP_TO_EDGE;
+	default:
+		return GL_CLAMP_TO_EDGE;
+	}
+}
+
+static TextureFormatInfo GetTextureFormatInfo(TextureFormat format)
+{
+	TextureFormatInfo result = {};
+	switch (format)
+	{
+	case TextureFormat::R16F:
+		result.format = GL_RED;
+		result.internalFormat = GL_R16F;
+		result.type = GL_FLOAT;
+		break;
+	case TextureFormat::RGB8:
+		result.format = GL_RGB;
+		result.internalFormat =  GL_RGB8;
+		result.type = GL_UNSIGNED_BYTE;
+		break;
+	default:
+		result.format = GL_RGB;
+		result.internalFormat = GL_RGB8;
+		result.type = GL_UNSIGNED_BYTE;
+		break;
+	}
+
+	return result;
+}
+
+/*****************************************************************************************************************************************/
+
+GLTexture::GLTexture(const void* data, const TextureParams& params) : 
+	width_(params.width),
+	height_(params.height),
+	formatInfo_(GetTextureFormatInfo(params.format))
+{
+	glCreateTextures(GL_TEXTURE_2D, 1, &handle_);
+	glTextureParameteri(handle_, GL_TEXTURE_MIN_FILTER, GetTextureFilter(params.minFilter));
+	glTextureParameteri(handle_, GL_TEXTURE_MAG_FILTER, GetTextureFilter(params.magFilter));
+	glTextureParameteri(handle_, GL_TEXTURE_WRAP_S, GetTextureWrap(params.wrapS));
+	glTextureParameteri(handle_, GL_TEXTURE_WRAP_T, GetTextureWrap(params.wrapT));
+
+	glTextureStorage2D(handle_, 1, formatInfo_.internalFormat, params.width, params.height);
+	if(data)
+		glTextureSubImage2D(handle_, 0, 0, 0, params.width, params.height, formatInfo_.format, formatInfo_.type, data);
+}
+
+/*****************************************************************************************************************************************/
+

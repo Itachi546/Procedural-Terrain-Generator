@@ -40,7 +40,7 @@ void TerrainGeometry::draw()
 
 /****************************************************************************************************************************************/
 
-void TerrainGeometry::generateFootprintGeometry(int vertexCount, int unitSize)
+void TerrainGeometry::generateFootprintGeometry(int vertexCount, float unitSize)
 {
 
 	MeshData meshData = {};
@@ -111,16 +111,16 @@ void TerrainGeometry::updateDrawCommands()
 void TerrainGeometry::generateLocationForFinest(const glm::vec3& cameraPosition)
 {
 
-	int unitSize = params_->unitSize;
-	int gridSize = (m_ - 1) * unitSize;
-	int tileSize = unitSize;
+	float unitSize = params_->unitSize;
+	float gridSize = (m_ - 1) * unitSize;
+	float tileSize = unitSize;
 
-	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / (float)tileSize) * (float)tileSize;
+	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / tileSize) * tileSize;
 
 	glm::vec2 tl = glm::vec2{ -gridSize * 2.0f };
 	glm::vec2 startPos = tl + offset;
 
-	glm::vec2 scale = glm::vec2(static_cast<float>(unitSize));
+	glm::vec2 scale = glm::vec2(unitSize);
 
 	// Generate all MxM Grid
 	for (int y = 0; y < 4; ++y)
@@ -192,14 +192,12 @@ void TerrainGeometry::generateLocationForFinest(const glm::vec3& cameraPosition)
 
 void TerrainGeometry::generateLocationFor(int clipLevel, const glm::vec3& cameraPosition)
 {
-	int unitSize = params_->unitSize;
-	int scalingFactor = 1 << clipLevel;
-	int gridSize = scalingFactor * unitSize * (m_ - 1);
-	int tileSize = scalingFactor * unitSize;
+	glm::vec2 scale = glm::vec2((float)(1 << clipLevel));
+	float unitSize = params_->unitSize;
+	float gridSize = scale.x * unitSize * (m_ - 1);
+	float tileSize = scale.x * unitSize;
 
-	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / (float)tileSize) * (float)tileSize;
-
-	glm::vec2 scale = glm::vec2((float)scalingFactor);
+	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / tileSize) * tileSize;
 	glm::vec2 tl = glm::vec2{ -gridSize * 2.0f };
 	glm::vec2 startPos = tl + offset;
 
