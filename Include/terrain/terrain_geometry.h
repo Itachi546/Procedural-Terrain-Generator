@@ -28,8 +28,6 @@ private:
 
 	void generateLocations(const glm::vec3& cameraPosition);
 
-	void generateLocationForFinest(const glm::vec3& cameraPosition);
-
 	void generateLocationFor(int clipLevel, const glm::vec3& cameraPosition);
 
 	void updateDrawCommands();
@@ -45,6 +43,8 @@ private:
 		glm::vec2 translate;
 		glm::vec2 scale;
 		glm::vec2 id;
+
+		BoundingBox generateBoundingBox();
 	};
 
 	std::vector<TerrainData> transformData_;

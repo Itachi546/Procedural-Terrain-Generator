@@ -42,6 +42,12 @@ layout(std430, binding = 1) restrict readonly buffer Matrices
 
 layout(binding = 0) uniform sampler2D u_Heightmap;
 
+uniform int u_VertexCount;
+uniform float u_TextureDims;
+uniform float u_MaxHeight;
+uniform float u_UnitSize;
+// Transition Region Width in percentage
+uniform float u_TransitionRegionWidth;
 /***********************************************************************************************************************************************************/
 
 // Outgoing
@@ -54,11 +60,7 @@ layout(location = 3) out float morphFactor;
 
 float getHeightFromTexture(vec2 uv)
 {
-   return texture2D(u_Heightmap, (uv + 1024.0f) / 2048.0f).r * 200.0f;
-}
-
-float linstep(float low, float high, float value){
-  return clamp((value-low)/(high-low), 0.0, 1.0);
+   return texture2D(u_Heightmap, (uv + u_TextureDims * 0.5f) / u_TextureDims).r * u_MaxHeight;
 }
 
 // The height calculation should be done in such a way that at the edges
@@ -72,7 +74,7 @@ float getHeight(vec2 worldPos, float scale, float morphFactor)
 
   // Calcualte the offset of vertex for next heigher grid level 
   // This is generally in multiple of scale of next gridSize
-  vec2 modPos = mod(worldPos, scale * 2.0f);
+  vec2 modPos = mod(worldPos, scale * 2.0f * u_UnitSize);
 
   // Check if the offset lies in currentGridLevel or not
   if (length(modPos) > 0.5f)
@@ -96,8 +98,9 @@ void main()
     mat2 rotate = rot(terrainData.id.y);
     vec2 worldPosition = rotate * (position * terrainData.scale) + terrainData.translate;
 
-    const float gridSize = 127.0f * terrainData.scale.x;
-    const float transitionWidth = gridSize * 0.1f;
+    const float gridSize = u_VertexCount * terrainData.scale.x * u_UnitSize;
+    const float transitionWidth = gridSize * u_TransitionRegionWidth;
+
     vec2 alpha = (abs(worldPosition - cameraPosition.xz) - (gridSize * 0.5f - transitionWidth - 1.0f)) / transitionWidth;
     alpha = clamp(alpha, 0.0, 1.0);
 

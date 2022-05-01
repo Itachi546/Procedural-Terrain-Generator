@@ -5,3 +5,5 @@ An attempt to make a procedural terrain using Geometric Clipmap.
 ![heightmap](images/output1.png)
 ### Wireframe
 ![heightmap](images/output1_wireframe.png)
+### BoundingBox
+![heightmap](images/boundingbox.png)

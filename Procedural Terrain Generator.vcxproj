@@ -87,9 +87,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source\camera.cpp" />
+    <ClCompile Include="Source\debugdraw.cpp" />
     <ClCompile Include="Source\geometry\geometry.cpp" />
     <ClCompile Include="Source\input.cpp" />
     <ClCompile Include="Source\main.cpp" />
+    <ClCompile Include="Source\math_helper.cpp" />
     <ClCompile Include="Source\ogl.cpp" />
     <ClCompile Include="Source\terrain\terrain.cpp" />
     <ClCompile Include="Source\terrain\terrain_geometry.cpp" />
@@ -97,6 +99,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\camera.h" />
+    <ClInclude Include="Include\debugdraw.h" />
     <ClInclude Include="Include\geometry\geometry.h" />
     <ClInclude Include="Include\image_utils.h" />
     <ClInclude Include="Include\input.h" />

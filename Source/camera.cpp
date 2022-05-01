@@ -12,6 +12,8 @@ FirstPersonCamera::FirstPersonCamera(const glm::vec3& position, const glm::vec3&
 	orientation_(0.0f)
 {
 	generateProjectionMatrix();
+
+	frustum_ = std::make_shared<Frustum>();
 }
 
 /*****************************************************************************************************************************************/
@@ -58,6 +60,8 @@ void FirstPersonCamera::update(float dt)
 	forward_ = glm::normalize(rotationMatrix * target_);
 	right_ = glm::normalize(glm::cross(forward_, up_));
 	viewMatrix_ = glm::lookAt(position_, position_ + forward_, up_);
+
+	frustum_->generate(this);
 
 }
 

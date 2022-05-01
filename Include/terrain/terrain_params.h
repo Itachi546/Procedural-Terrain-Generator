@@ -9,6 +9,7 @@ struct TerrainParams
 	int maxClipLevelCount;
 	float maxHeight;
 	float minHeight;
+	float transitionRegionWidth;
 };
 
 #endif

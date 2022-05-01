@@ -128,6 +128,7 @@ public:
 
 	DrawElementsIndirectCommand* commands = nullptr;
 
+	std::vector<BoundingBox> boundingBoxes_;
 private:
 	uint32_t                vao_;
 	uint32_t                numIndices_;
@@ -155,6 +156,7 @@ enum class TextureWrap
 
 enum class TextureFormat{
 	RGB8,
+	RGBA8,
 	R16F,
 };
 

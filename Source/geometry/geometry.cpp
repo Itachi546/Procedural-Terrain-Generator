@@ -52,6 +52,12 @@ void GeometryGenerator::GenerateGrid(glm::ivec2 vertexCount, float unitSize, Mes
     mesh.vertexOffset = vertexOffset;
     mesh.indexOffset = indexOffset;
     meshData.meshes.push_back(mesh);
+
+    BoundingBox boundingBox = { 
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3((vertexCount.x - 1) * unitSize, 1.0f, (vertexCount.y - 1) * unitSize)
+    };
+    meshData.boundingBox.push_back(boundingBox);
 }
 
 /***********************************************************************************************************************************/
@@ -119,6 +125,14 @@ void GeometryGenerator::GenerateLTrim(glm::ivec2 vertexCount, float unitSize, Me
     mesh.vertexOffset = vertexOffset;
     mesh.indexOffset = indexOffset;
     meshData.meshes.push_back(mesh);
+
+    //@TODO Greatly overestimated bounding box !!!
+    BoundingBox boundingBox = {
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3((vertexCount.x - 1) * unitSize, 1.0f, (vertexCount.y - 1) * unitSize)
+	};
+    meshData.boundingBox.push_back(boundingBox);
+
 }
 
 /***********************************************************************************************************************************/

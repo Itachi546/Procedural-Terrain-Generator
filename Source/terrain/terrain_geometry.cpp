@@ -4,6 +4,8 @@
 #include "camera.h"
 #include "ogl.h"
 
+#include "debugdraw.h"
+
 #include <algorithm>
 
 
@@ -35,6 +37,7 @@ void TerrainGeometry::draw()
 
 	mesh_->draw();
 
+	fprintf(stdout, "Total Chunks: %zu\n", transformData_.size());
 	transformData_.clear();
 }
 
@@ -46,6 +49,7 @@ void TerrainGeometry::generateFootprintGeometry(int vertexCount, float unitSize)
 	MeshData meshData = {};
 
 	// Generate all the required grids
+	float mSize = (m_ - 1) * unitSize;
 
 	// MxM mesh ID: 0
 	GeometryGenerator::GenerateGrid(glm::ivec2(m_), unitSize, meshData);
@@ -71,10 +75,9 @@ void TerrainGeometry::generateFootprintGeometry(int vertexCount, float unitSize)
 /****************************************************************************************************************************************/
 
 void TerrainGeometry::generateLocations(const glm::vec3& cameraPosition)
-{
-	generateLocationForFinest(cameraPosition);
-
-	for(int i = 1; i < params_->maxClipLevelCount; ++i)
+{ 
+	// Generate Location for all clipmap level
+	for (int i = 0; i < params_->maxClipLevelCount; ++i)
 		generateLocationFor(i, cameraPosition);
 }
 
@@ -87,105 +90,33 @@ void TerrainGeometry::updateDrawCommands()
 		});
 
 	float currentId = transformData_[0].id.x;
+	BoundingBox aabb = mesh_->boundingBoxes_[int(currentId)];
 	int totalInstance = 0;
 
 	DrawElementsIndirectCommand* commands = mesh_->commands;
 	for (auto& transform : transformData_)
 	{
+
+		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(transform.translate.x, 0.0f, transform.translate.y)) *
+			glm::rotate(glm::mat4(1.0f), transform.id.y, glm::vec3(0.0f, 1.0f, 0.0f)) *
+			glm::scale(glm::mat4(1.0f), glm::vec3(transform.scale.x, params_->maxHeight - params_->minHeight, transform.scale.y));
+
+		BoundingBox box_ = aabb.transform(transformMatrix);
+		GLDebugDraw::addAABB(box_.min_, box_.max_);
+
 		if (currentId == transform.id.x)
 			totalInstance++;
 		else
 		{
 			commands[int(currentId)].instanceCount_ = totalInstance;
 			currentId = transform.id.x;
+			aabb = mesh_->boundingBoxes_[int(currentId)];
 			totalInstance = 1;
 		}
 	}
 
 	commands[int(currentId)].instanceCount_ = totalInstance;
 	glNamedBufferSubData(transformBuffer_->getHandle(), 0, sizeof(TerrainData) * transformData_.size(), transformData_.data());
-}
-
-/****************************************************************************************************************************************/
-
-void TerrainGeometry::generateLocationForFinest(const glm::vec3& cameraPosition)
-{
-
-	float unitSize = params_->unitSize;
-	float gridSize = (m_ - 1) * unitSize;
-	float tileSize = unitSize;
-
-	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / tileSize) * tileSize;
-
-	glm::vec2 tl = glm::vec2{ -gridSize * 2.0f };
-	glm::vec2 startPos = tl + offset;
-
-	glm::vec2 scale = glm::vec2(unitSize);
-
-	// Generate all MxM Grid
-	for (int y = 0; y < 4; ++y)
-	{
-		if (y == 2)
-			startPos.y += tileSize;
-
-		for (int x = 0; x < 4; ++x)
-		{
-			if (x == 2)
-				startPos.x += tileSize;
-
-			transformData_.push_back(TerrainData{ startPos, scale, glm::vec2(0.0f, 0.0f)});
-			startPos.x += gridSize;
-		}
-
-		startPos.x = tl.x + offset.x;
-		startPos.y += gridSize;
-	}
-
-	// Generate CrossHair X-Direction
-	transformData_.push_back(TerrainData{ glm::vec2(tl.x, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
-	transformData_.push_back(TerrainData{ glm::vec2(tl.x + gridSize, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
-
-	transformData_.push_back(TerrainData{ offset, scale, glm::vec2(2.0f, 0.0f) });
-	transformData_.push_back(TerrainData{ glm::vec2(unitSize + gridSize, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
-
-	// Generate CrossHair Y-Direction
-	transformData_.push_back(TerrainData{ glm::vec2(0.0f, tl.y) + offset, scale, glm::vec2(3.0f, 0.0f) });
-	transformData_.push_back(TerrainData{ glm::vec2(0.0f, tl.y + gridSize) + offset, scale, glm::vec2(3.0f, 0.0f) });
-	transformData_.push_back(TerrainData{ glm::vec2(0.0f, tileSize) + offset, scale, glm::vec2(3.0f, 0.0f) });
-	transformData_.push_back(TerrainData{ glm::vec2(0.0f, tileSize + gridSize) + offset, scale, glm::vec2(3.0f, 0.0f) });
-
-	float nextTileSize = 2.0f * tileSize;
-	glm::vec2 offset2 = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / nextTileSize) * nextTileSize;
-
-	float dx = (offset2.x - offset.x);
-	float dy = (offset2.y - offset.y);
-	dx = dx / tileSize;
-	dy = dy / tileSize;
-	glm::vec2 translate = glm::vec2(0.0f);
-	float rotate = 0.0f;
-
-	if (dx == 0.0f && dy == 0.0f) 	// Bottom Right (0, 0)
-	{
-		translate = glm::vec2(gridSize * 2.0f + tileSize * 2.0f);
-		rotate = glm::radians(180.0f);
-	}
-	else if (dx == 0.0f && dy == -1.0f) // Top Right (0, -1)
-	{
-		translate = glm::vec2(gridSize * 2.0f + tileSize * 2.0f, -gridSize * 2.0f - tileSize);
-		rotate = glm::radians(90.0f);
-	}
-	else if (dx == -1.0f && dy == -1.0f) // Top Left (-1, -1)
-	{
-		translate = glm::vec2(-gridSize * 2.0f - tileSize, -gridSize * 2.0f - tileSize);
-		rotate = 0.0f;
-	}
-	else  // Bottom Left (-1, 0)
-	{
-		translate = glm::vec2(-gridSize * 2.0f - tileSize, gridSize * 2.0f + tileSize * 2.0f);
-		rotate = glm::radians(-90.0f);
-	}
-
-	transformData_.push_back(TerrainData{ translate + offset, scale, glm::vec2(4.0f, rotate) });
 }
 
 /****************************************************************************************************************************************/
@@ -198,6 +129,7 @@ void TerrainGeometry::generateLocationFor(int clipLevel, const glm::vec3& camera
 	float tileSize = scale.x * unitSize;
 
 	glm::vec2 offset = glm::floor(glm::vec2(cameraPosition.x, cameraPosition.z) / tileSize) * tileSize;
+
 	glm::vec2 tl = glm::vec2{ -gridSize * 2.0f };
 	glm::vec2 startPos = tl + offset;
 
@@ -213,8 +145,13 @@ void TerrainGeometry::generateLocationFor(int clipLevel, const glm::vec3& camera
 			if (x == 2)
 				startPos.x += tileSize;
 
-			if((y == 0 || y == 3)  || ((y == 1 || y == 2) && (x == 0  || x == 3)))
-				transformData_.push_back(TerrainData{ startPos, scale, glm::vec2(0.0f)});
+			if (clipLevel == 0)
+				transformData_.push_back(TerrainData{ startPos, scale, glm::vec2(0.0f, 0.0f) });
+			else 
+			{
+				if ((y == 0 || y == 3) || ((y == 1 || y == 2) && (x == 0 || x == 3)))
+					transformData_.push_back(TerrainData{ startPos, scale, glm::vec2(0.0f) });
+			}
 
 			startPos.x += gridSize;
 		}
@@ -230,6 +167,17 @@ void TerrainGeometry::generateLocationFor(int clipLevel, const glm::vec3& camera
 	// Generate CrossHair X-Direction
 	transformData_.push_back(TerrainData{ glm::vec2(tl.x, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
 	transformData_.push_back(TerrainData{ glm::vec2(gridSize + tileSize, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
+
+	if (clipLevel == 0)
+	{
+		// Generate CrossHair X-Direction
+		transformData_.push_back(TerrainData{ glm::vec2(tl.x + gridSize, 0.0f) + offset, scale, glm::vec2(1.0f, 0.0f) });
+		transformData_.push_back(TerrainData{ offset, scale, glm::vec2(2.0f, 0.0f) });
+
+		// Generate CrossHair Y-Direction
+		transformData_.push_back(TerrainData{ glm::vec2(0.0f, tl.y + gridSize) + offset, scale, glm::vec2(3.0f, 0.0f) });
+		transformData_.push_back(TerrainData{ glm::vec2(0.0f, tileSize) + offset, scale, glm::vec2(3.0f, 0.0f) });
+	}
 
 	if (clipLevel == params_->maxClipLevelCount - 1)
 		return;
@@ -270,5 +218,7 @@ void TerrainGeometry::generateLocationFor(int clipLevel, const glm::vec3& camera
 
 /****************************************************************************************************************************************/
 
-
-
+BoundingBox TerrainGeometry::TerrainData::generateBoundingBox()
+{
+	return BoundingBox();
+}

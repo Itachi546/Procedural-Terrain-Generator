@@ -28,6 +28,7 @@ private:
 	std::shared_ptr<TerrainGeometry> terrainGeometry_;
 
 	std::shared_ptr<GLTexture> heightMap_;
+	std::shared_ptr<GLTexture> gradientMap_;
 };
 
 

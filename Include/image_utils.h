@@ -24,6 +24,17 @@ public:
 		return data;
 	}
 
+	static unsigned char* LoadImage(const char* filename, ImageHeader& header)
+	{
+		unsigned char* data = stbi_load(filename, &header.width, &header.height, &header.nChannel, 0);
+		if (data == nullptr)
+		{
+			fprintf(stderr, "Failed to load image: %s\n", filename);
+			return nullptr;
+		}
+		return data;
+	}
+
 	static void FreeImage(void* data)
 	{
 		stbi_image_free(data);

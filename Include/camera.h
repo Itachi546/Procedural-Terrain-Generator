@@ -3,6 +3,8 @@
 
 #include "math_helper.h"
 
+#include <memory>
+
 /*****************************************************************************************************************************************/
 
 class Camera {
@@ -17,6 +19,20 @@ public:
 
 	virtual glm::mat4 getViewMatrix() const = 0;
 
+	virtual float getFOV() const = 0;
+
+	virtual float getAspectRatio() const = 0;
+
+	virtual float getZNear() const = 0;
+
+	virtual float getZFar() const = 0;
+
+	virtual glm::vec3 getForward() const = 0;
+
+	virtual glm::vec3 getRight() const = 0;
+
+	virtual glm::vec3 getUp() const = 0;
+
 	virtual ~Camera() {}
 };
 
@@ -29,19 +45,33 @@ public:
 
 	FirstPersonCamera(const glm::vec3& position, const glm::vec3& target, const glm::vec3& up);
 
-	glm::vec3 getPosition()   const override { return position_; }
+	glm::vec3 getPosition()         const override { return position_; }
 
 	glm::mat4 getProjectionMatrix() const override { return projectionMatrix_; }
 
 	glm::mat4 getViewMatrix()       const override { return viewMatrix_; }
 
-	void setFOV(float fov)          { fov_ = fov; }
+	float getFOV()                  const override { return fov_; }
 
-	void setAspect(float aspect)    { aspect_ = aspect; }
+	float getAspectRatio()          const override { return aspect_; }
 
-	void setZNear(float zNear)      { zNear_ = zNear; }
+	float getZNear()                const override { return zNear_; }
 
-	void setZFar(float zFar)        { zFar_ = zFar; }
+	float getZFar()                 const override { return zFar_; }
+
+	glm::vec3 getForward()          const override { return up_; }
+
+	glm::vec3 getRight()            const override { return right_; }
+
+	glm::vec3 getUp()               const override { return up_; }
+
+	void setFOV(float fov) { fov_ = fov; }
+
+	void setAspect(float aspect) { aspect_ = aspect; }
+
+	void setZNear(float zNear) { zNear_ = zNear; }
+
+	void setZFar(float zFar) { zFar_ = zFar; }
 
 	void update(float dt);
 
@@ -63,20 +93,20 @@ private:
 	glm::vec3        velocity_ = glm::vec3(0.0f);
 	glm::vec3        angularVelocity_ = glm::vec3(0.0f);
 
-	float            cameraSpeed_      = 1.0f;
-	float            speedMultiplier_  = 10.0f;
+	float            cameraSpeed_ = 1.0f;
+	float            speedMultiplier_ = 10.0f;
 	float            linearDampingFactor_ = 0.03f;
 	float            angularDampingFactor_ = 0.03f;
 	float            mouseSensitivity_ = 0.01f;
 
 
 	// Projection Properties
-	float            fov_    = glm::radians(70.0f);
+	float            fov_ = glm::radians(70.0f);
 	float            aspect_ = 1.333f;
-	float            zNear_  = 0.3f;
-	float            zFar_   = 2000.0f;
+	float            zNear_ = 0.1f;
+	float            zFar_ = 1000.0f;
 
+	std::shared_ptr<Frustum> frustum_;
 };
-
 
 #endif

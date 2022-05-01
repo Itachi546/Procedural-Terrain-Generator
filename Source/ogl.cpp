@@ -2,6 +2,7 @@
 
 #include <string>
 #include <fstream>
+#include "debugdraw.h"
 
 /*****************************************************************************************************************************************/
 // Shader
@@ -185,7 +186,7 @@ GLMesh::GLMesh(const MeshData& meshData) :
 	bufferIndirect_(nullptr, meshData.meshCount * sizeof(DrawElementsIndirectCommand) + sizeof(GLsizei), GL_DYNAMIC_STORAGE_BIT),
 
 	numIndices_(static_cast<uint32_t>(meshData.indices.size())),
-
+	boundingBoxes_(meshData.boundingBox),
 	meshCount_(meshData.meshCount)
 {
 	glCreateVertexArrays(1, &vao_);
@@ -285,6 +286,11 @@ static TextureFormatInfo GetTextureFormatInfo(TextureFormat format)
 		result.internalFormat =  GL_RGB8;
 		result.type = GL_UNSIGNED_BYTE;
 		break;
+	case TextureFormat::RGBA8:
+		result.format = GL_RGBA;
+		result.internalFormat = GL_RGBA8;
+		result.type = GL_UNSIGNED_BYTE;
+		break;
 	default:
 		result.format = GL_RGB;
 		result.internalFormat = GL_RGB8;
@@ -314,4 +320,3 @@ GLTexture::GLTexture(const void* data, const TextureParams& params) :
 }
 
 /*****************************************************************************************************************************************/
-

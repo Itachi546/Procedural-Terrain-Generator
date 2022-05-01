@@ -2,9 +2,12 @@
 #include "camera.h"
 #include "input.h"
 #include "terrain/terrain.h"
+#include "debugdraw.h"
 
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 
 /**************************************************************************************************************/
 
@@ -12,8 +15,8 @@ float gOGLVersion;
 
 struct State
 {
-  int width;
-  int height;
+  int width = 1920;
+  int height = 1080;
 } gState;
 
 struct PerFrameData
@@ -79,14 +82,10 @@ void CursorPositionCb(GLFWwindow* window, double x, double y)
 /**************************************************************************************************************/
 int main()
 {
-    gState.width = 800;
-    gState.height = 600;
-
     if (!glfwInit())
 		glfwInit();
 
     glfwSetErrorCallback(GLFWErrorCallback);
-
     GLFWwindow* window = glfwCreateWindow(gState.width, gState.height, "Hello World", 0, 0);
 
     if(window == nullptr)
@@ -119,7 +118,7 @@ int main()
     gOGLVersion = (float)std::atof(version.substr(0, 3).c_str());
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
 
@@ -128,16 +127,21 @@ int main()
     glBindBufferRange(GL_UNIFORM_BUFFER, 0, perFrameDataBuffer.getHandle(), 0, sizeof(PerFrameData));
 
     // Terrain
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(127, 1.0f);
+    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>(255, 1.0f);
 
     float dt = 0.016f;
     float startTime = static_cast<float>(glfwGetTime());
     bool wireframe = true;
 
+    camera.setZFar(10000);
+    camera.setZNear(0.9f);
+
     while(!glfwWindowShouldClose(window))
     {
-        if (Input::IsKeyDown(GLFW_KEY_SPACE))
-            wireframe = !wireframe;
+        if (!Input::IsKeyDown(GLFW_KEY_SPACE))
+            wireframe = true;
+        else
+            wireframe = false;
 
         if (wireframe)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -161,15 +165,22 @@ int main()
         // Draw
         terrain->draw();
 
+        if(wireframe)
+			GLDebugDraw::draw(&gPerFrameData.projection[0][0], &gPerFrameData.view[0][0]);
+
         glfwPollEvents();
+
+        float delta = static_cast<float>(glfwGetTime()) - startTime;
         glfwSwapBuffers(window);
 
         float endTime = static_cast<float>(glfwGetTime());
         dt = endTime - startTime;
         startTime = endTime;
 
-        std::string title = "frameTime: " + std::to_string(dt) + "ms";
-        glfwSetWindowTitle(window, title.c_str());
+        std::stringstream ss;
+        ss << "frameTime: " << std::setprecision(3) << dt * 1000.0f << "ms  " 
+                            << "renderTime: " << std::setprecision(3) << delta * 1000.0f << "ms ";
+        glfwSetWindowTitle(window, ss.str().c_str());
     }
 
     glfwDestroyWindow(window);
