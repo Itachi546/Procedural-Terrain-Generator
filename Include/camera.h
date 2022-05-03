@@ -33,6 +33,8 @@ public:
 
 	virtual glm::vec3 getUp() const = 0;
 
+	virtual std::shared_ptr<Frustum> getFrustum() const = 0;
+
 	virtual ~Camera() {}
 };
 
@@ -59,7 +61,7 @@ public:
 
 	float getZFar()                 const override { return zFar_; }
 
-	glm::vec3 getForward()          const override { return up_; }
+	glm::vec3 getForward()          const override { return forward_; }
 
 	glm::vec3 getRight()            const override { return right_; }
 
@@ -74,6 +76,8 @@ public:
 	void setZFar(float zFar) { zFar_ = zFar; }
 
 	void update(float dt);
+
+	std::shared_ptr<Frustum> getFrustum() const override { return frustum_; }
 
 private:
 	void generateProjectionMatrix();

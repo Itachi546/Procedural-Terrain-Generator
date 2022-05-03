@@ -30,7 +30,7 @@ private:
 
 	void generateLocationFor(int clipLevel, const glm::vec3& cameraPosition);
 
-	void updateDrawCommands();
+	void updateDrawCommands(Camera* camera);
 
 	std::shared_ptr<GLMesh> mesh_;
 

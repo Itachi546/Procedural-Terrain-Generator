@@ -15,6 +15,7 @@ public:
 	}
 
 	static void addAABB(const glm::vec3& min, const glm::vec3& max);
+	static void addFrustum(glm::vec3* points);
 
 	static void draw(float* P, float* V);
 private:

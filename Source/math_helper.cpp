@@ -66,9 +66,28 @@ void Frustum::generate(Camera* camera)
 
 /***************************************************************************************************************************/
 
-void Frustum::intersect(const BoundingBox& boundingBox)
+bool Frustum::intersect(const BoundingBox& boundingBox)
 {
+	const glm::vec3 min = boundingBox.min_;
+	const glm::vec3 max = boundingBox.max_;
 
+	for (int i = 0; i < 6; ++i)
+	{
+		glm::vec3 p = min;
+		const Plane& plane = frustumPlanes_[i];
+		const glm::vec3& n = plane.normal;
+		if (n.x >= 0)
+			p.x = max.x;
+		if (n.y >= 0)
+			p.y = max.y;
+		if (n.z >= 0)
+			p.z = max.z;
+
+		if (plane.getDistance(p) < 0.0f)
+			return false;
+	}
+
+	return true;
 }
 
 /***************************************************************************************************************************/

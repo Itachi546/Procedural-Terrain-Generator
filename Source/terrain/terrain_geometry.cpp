@@ -26,7 +26,7 @@ void TerrainGeometry::update(Camera* camera)
 {
 	glm::vec3 cameraPosition = camera->getPosition();
 	generateLocations(cameraPosition);
-	updateDrawCommands();
+	updateDrawCommands(camera);
 }
 
 /****************************************************************************************************************************************/
@@ -37,7 +37,6 @@ void TerrainGeometry::draw()
 
 	mesh_->draw();
 
-	fprintf(stdout, "Total Chunks: %zu\n", transformData_.size());
 	transformData_.clear();
 }
 
@@ -83,7 +82,7 @@ void TerrainGeometry::generateLocations(const glm::vec3& cameraPosition)
 
 /****************************************************************************************************************************************/
 
-void TerrainGeometry::updateDrawCommands()
+void TerrainGeometry::updateDrawCommands(Camera* camera)
 {
 	std::sort(transformData_.begin(), transformData_.end(), [](const TerrainData& a, const TerrainData& b) {
 		return a.id.x < b.id.x;
@@ -93,6 +92,7 @@ void TerrainGeometry::updateDrawCommands()
 	BoundingBox aabb = mesh_->boundingBoxes_[int(currentId)];
 	int totalInstance = 0;
 
+	const auto frustum = camera->getFrustum();
 	DrawElementsIndirectCommand* commands = mesh_->commands;
 	for (auto& transform : transformData_)
 	{
@@ -105,7 +105,15 @@ void TerrainGeometry::updateDrawCommands()
 		GLDebugDraw::addAABB(box_.min_, box_.max_);
 
 		if (currentId == transform.id.x)
-			totalInstance++;
+		{
+			if (frustum->intersect(box_) || transform.id.x == 4.0f)
+			{
+				GLDebugDraw::addAABB(box_.min_, box_.max_);
+				totalInstance++;
+			}
+			else
+				transform.id = glm::vec2(-1.0f);
+		}
 		else
 		{
 			commands[int(currentId)].instanceCount_ = totalInstance;
@@ -114,6 +122,12 @@ void TerrainGeometry::updateDrawCommands()
 			totalInstance = 1;
 		}
 	}
+
+	transformData_.erase(std::remove_if(
+		transformData_.begin(), transformData_.end(),
+		[](const TerrainData& data) {
+			return data.id.x < 0.0f;
+		}), transformData_.end());
 
 	commands[int(currentId)].instanceCount_ = totalInstance;
 	glNamedBufferSubData(transformBuffer_->getHandle(), 0, sizeof(TerrainData) * transformData_.size(), transformData_.data());

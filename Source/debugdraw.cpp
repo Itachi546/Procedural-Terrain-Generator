@@ -32,6 +32,36 @@ void GLDebugDraw::addAABB(const glm::vec3& min, const glm::vec3& max)
 	points_.push_back(v3), points_.push_back(v7);
 }
 
+
+void GLDebugDraw::addFrustum(glm::vec3* points)
+{
+	glm::vec3 ntl = points[0];
+	glm::vec3 ntr = points[1];
+	glm::vec3 nbl = points[2];
+	glm::vec3 nbr = points[3];
+
+	glm::vec3 ftl = points[4];
+	glm::vec3 ftr = points[5];
+	glm::vec3 fbl = points[6];
+	glm::vec3 fbr = points[7];
+
+	points_.push_back(nbl), points_.push_back(nbr);
+	points_.push_back(nbr), points_.push_back(fbr);
+	points_.push_back(fbr), points_.push_back(fbl);
+	points_.push_back(fbl), points_.push_back(nbl);
+
+	points_.push_back(ntl), points_.push_back(ntr);
+	points_.push_back(ntr), points_.push_back(ftr);
+	points_.push_back(ftr), points_.push_back(ftl);
+	points_.push_back(ftl), points_.push_back(ntl);
+
+
+	points_.push_back(ntl), points_.push_back(nbl);
+	points_.push_back(ntr), points_.push_back(nbr);
+	points_.push_back(ftr), points_.push_back(fbr);
+	points_.push_back(ftl), points_.push_back(fbl);
+}
+
 /*****************************************************************************************************************************************/
 
 void GLDebugDraw::draw(float* P, float* V)

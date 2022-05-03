@@ -6,7 +6,7 @@
 /*****************************************************************************************************************************************/
 
 Terrain::Terrain(int vertexCount, float unitSize) :
-	terrainParams_{ vertexCount, unitSize, 8, 200.0f, 0.0f, 0.1f }
+	terrainParams_{ vertexCount, unitSize, 12, 200.0f, 0.0f, 0.1f }
 //terrainParams_{ vertexCount, unitSize, 8, 10.0f, 0.0f, 0.1f }
 {
 	// Create Geometry

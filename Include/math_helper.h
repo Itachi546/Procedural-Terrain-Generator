@@ -104,6 +104,11 @@ struct Plane
 		distance = -glm::dot(normal, p0);
 	}
 
+	float getDistance(const glm::vec3& p) const
+	{
+		return glm::dot(p, normal) + distance;
+	}
+
 	glm::vec3 normal;
 	float distance;
 };
@@ -116,7 +121,7 @@ public:
 
 	void generate(Camera* camera);
 
-	void intersect(const BoundingBox& boundingBox);
+	bool intersect(const BoundingBox& boundingBox);
 
 	glm::vec3 frustumPoints_[8] = {};
 	Plane frustumPlanes_[6] = {};

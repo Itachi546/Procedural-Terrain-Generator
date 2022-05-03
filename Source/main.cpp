@@ -15,8 +15,8 @@ float gOGLVersion;
 
 struct State
 {
-  int width = 1920;
-  int height = 1080;
+  int width = 800;
+  int height = 600;
 } gState;
 
 struct PerFrameData
@@ -138,11 +138,11 @@ int main()
 
     while(!glfwWindowShouldClose(window))
     {
-        if (!Input::IsKeyDown(GLFW_KEY_SPACE))
+        if (Input::IsKeyDown(GLFW_KEY_SPACE))
             wireframe = true;
         else
             wireframe = false;
-
+        
         if (wireframe)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
@@ -153,7 +153,7 @@ int main()
 
         // Update Camera
         camera.update(dt);
-        terrain->update(&camera, dt);
+		terrain->update(&camera, dt);
 
         // Update PerFrameData
         gPerFrameData.projection = camera.getProjectionMatrix();
@@ -163,7 +163,7 @@ int main()
         glNamedBufferSubData(perFrameDataBuffer.getHandle(), 0, sizeof(PerFrameData), &gPerFrameData);
 
         // Draw
-        terrain->draw();
+		terrain->draw();
 
         if(wireframe)
 			GLDebugDraw::draw(&gPerFrameData.projection[0][0], &gPerFrameData.view[0][0]);
